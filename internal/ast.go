@@ -89,9 +89,9 @@ type Positions struct {
 func (r *Positions) Offset() string {
 	if r.Begin == r.End {
 		return fmt.Sprintf("%d:", r.Begin)
-	} else {
-		return fmt.Sprintf("%d:%d:", r.Begin, r.End)
 	}
+
+	return fmt.Sprintf("%d:%d:", r.Begin, r.End)
 }
 
 func (r *Positions) ClearPositions() {
@@ -101,12 +101,12 @@ func (r *Positions) ClearPositions() {
 
 var DefNodeKinds = []NodeKind{StructNodeKind, UnionNodeKind, EnumNodeKind, ServiceNodeKind}
 
-func (k NodeKind) isTypeDef() bool {
-	return slices.Contains(DefNodeKinds, k)
+func (kind NodeKind) isTypeDef() bool {
+	return slices.Contains(DefNodeKinds, kind)
 }
 
-func (k NodeKind) MemberKind() NodeKind {
-	switch k {
+func (kind NodeKind) MemberKind() NodeKind {
+	switch kind {
 	case StructNodeKind:
 		return FieldNodeKind
 	case UnionNodeKind:
@@ -115,8 +115,9 @@ func (k NodeKind) MemberKind() NodeKind {
 		return CaseNodeKind
 	case ServiceNodeKind:
 		return RpcNodeKind
+	default:
+		return NoNodeKind
 	}
-	return NoNodeKind
 }
 
 type DefNode struct {
@@ -127,7 +128,7 @@ type DefNode struct {
 	Iden       string       // Every node kind has an identifier
 	StrValue   string       // Property/Import value
 	Members    []MemberNode // Elements of Structs/Unions/Enums/Services
-	TypeParams []string     // Paramterization for Structs/Unions/Enums/Services
+	TypeParams []string     // Parameterization for Structs/Unions/Enums/Services
 	LocalDefs  []DefNode    // Recursively definitions for Structs/Unions/Enums/Services
 	Size       uint64       // Enum/Union sizes
 

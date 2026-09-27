@@ -22,6 +22,75 @@ func (v *Validator) emit(err ValidateErr) {
 	v.errs = append(v.errs, err)
 }
 
+type TypeParamStack struct {
+	prev *TypeParamStack
+	m    map[string]*TypeNode
+}
+
+func (t *TypeParamStack) insert(iden string, node *TypeNode) ValidateErr {
+	if _, exists := t.m[iden]; exists {
+		return makeRedefErr(TypeNodeKind, node.Positions, iden)
+	}
+	t.m[iden] = node
+	return ValidateErr{}
+}
+
+func (t *TypeParamStack) resolve(iden string) *TypeNode {
+	table := t
+	for table != nil {
+		node, ok := table.m[iden]
+		if ok {
+			return node
+		}
+		table = table.prev
+	}
+	return nil
+}
+
+type TypeDefStack struct {
+	prev *TypeDefStack
+	m    map[string]*DefNode
+}
+
+func makeTypeDefStack(prev *TypeDefStack) *TypeDefStack {
+	return &TypeDefStack{m: make(map[string]*DefNode), prev: prev}
+}
+
+func (t *TypeDefStack) insert(iden string, node *DefNode) ValidateErr {
+	if _, exists := t.m[iden]; exists {
+		return makeRedefErr(node.Kind, node.Positions, iden)
+	}
+	t.m[iden] = node
+	return ValidateErr{}
+}
+
+func (t *TypeDefStack) resolve(iden string) *DefNode {
+	table := t
+	for table != nil {
+		node, ok := table.m[iden]
+		if ok {
+			return node
+		}
+		table = table.prev
+	}
+	return nil
+}
+
+func resolveIden(node *DefNode, iden string) *DefNode {
+	// resolving the identifier relative to the definition stack and then local definitions
+	resolvedNode := node.DefStack.resolve(iden)
+	if resolvedNode != nil {
+		return resolvedNode
+	}
+	for i := range node.LocalDefs {
+		localDef := &node.LocalDefs[i]
+		if localDef.Iden == iden {
+			return localDef
+		}
+	}
+	return nil
+}
+
 func (v *Validator) transformDefList(nodes []DefNode, prevStack *TypeDefStack) {
 	stack := makeTypeDefStack(prevStack)
 
@@ -45,6 +114,7 @@ func (v *Validator) transformDefList(nodes []DefNode, prevStack *TypeDefStack) {
 			case RpcNodeKind:
 				v.transformType(&node.LeftType)
 				v.transformType(&node.RightType)
+			default:
 			}
 		}
 		slices.SortFunc(node.Members, func(n1, n2 MemberNode) int { return int(n1.Tag - n2.Tag) })

@@ -33,12 +33,12 @@ var IntSizes = []int{8, 16, 32, 64}
 func makeTypeValue(iden string) Type {
 	t := Type{Iden: iden, Primitive: isPrimitive(iden)}
 
-	index := strings.Index(iden, "int")
-	if index < 0 {
+	_, after, ok := strings.Cut(iden, "int")
+	if !ok {
 		// does not contain int, so it cannot be a primitive
 		return t
 	}
-	bitsStr := iden[index+3:]
+	bitsStr := after
 	bits, err := strconv.Atoi(bitsStr)
 	if err != nil {
 		// contains int, but does not contain a number

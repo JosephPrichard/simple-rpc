@@ -45,7 +45,7 @@ Define an RPC service using the 'service' structure.
 // a serivice that performs operations for othello games over the wire
 // notice that all arguments and return values are performed through named tuples, this can be thought of as an anonymous message defined for each operation
 service OthelloService {
-    MakeMove (move Move) -> b8;
-    GetGame (id b128) -> (b8, Game);
+    rpc MakeMove (Move) returns (Game);
+    rpc GetGame (int128) returns (Game);
 }
 ```

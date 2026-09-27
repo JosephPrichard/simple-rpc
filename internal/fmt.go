@@ -1,4 +1,4 @@
-    package internal
+package internal
 
 import (
 	"fmt"
@@ -35,7 +35,7 @@ func FmtAstWithConfig(nodes []DefNode, config *FmtAstConfig) string {
 }
 
 type FmtAstState struct {
-	sb strings.Builder
+	sb         strings.Builder
 	lineNumber int
 }
 
@@ -50,7 +50,7 @@ func addLine(state *FmtAstState) {
 		state.sb.WriteString("\n")
 	} else {
 		prefix := "\n"
-		if state.lineNumber == 1{
+		if state.lineNumber == 1 {
 			prefix = ""
 		}
 		// note(Joseph): if the number gets over 4 digits, this will look weird.
@@ -112,6 +112,7 @@ func FmtDefList(state *FmtAstState, nodes []DefNode, depth int) {
 			fmtIndents(state, depth)
 			state.sb.WriteString("}")
 			addLine(state)
+		default:
 		}
 	}
 }
@@ -181,9 +182,9 @@ func FmtMemberList(state *FmtAstState, kind NodeKind, nodes []MemberNode, depth 
 			FmtType(state, node.LeftType)
 			state.sb.WriteString(") returns (")
 			FmtType(state, node.RightType)
-			// state.sb.WriteString(");")
 			state.sb.WriteString(")")
 			addLine(state)
+		default:
 		}
 	}
 }

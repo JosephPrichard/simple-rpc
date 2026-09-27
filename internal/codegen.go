@@ -13,6 +13,28 @@ type CodeBuilder struct {
 	errs        *[]ValidateErr
 }
 
+type ImportTable = map[string][]DefNode
+
+func makeImportTable() ImportTable {
+	importTable := make(ImportTable)
+	return importTable
+}
+
+type PropTable = map[string]string
+
+func makePropTable(nodes []DefNode) PropTable {
+	propTable := make(PropTable)
+	for _, node := range nodes {
+		if node.Kind != PropertyNodeKind {
+			continue
+		}
+		if !node.Poisoned {
+			propTable[node.Iden] = node.StrValue
+		}
+	}
+	return propTable
+}
+
 func makeCodeBuilder(propTable PropTable, importTable ImportTable) CodeBuilder {
 	return CodeBuilder{propTable: propTable, importTable: importTable}
 }
