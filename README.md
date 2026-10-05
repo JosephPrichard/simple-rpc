@@ -1,4 +1,4 @@
-# Power RPC
+# Simple RPC
 
 An RPC protocol over TCP with support for bit-level control.
 
